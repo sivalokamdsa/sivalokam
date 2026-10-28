@@ -1,0 +1,27 @@
+name: Deploy sivalokam.co.in to VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-sivalokam-site
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Copy site files to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          # Only the publicly served files. README, CLAUDE.md, and .git stay out.
+          source: "index.html,styles.css,script.js,assets,favicon"
+          target: ${{ secrets.VPS_PATH }}
